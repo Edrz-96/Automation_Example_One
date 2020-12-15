@@ -8,24 +8,22 @@ import org.openqa.selenium.WebDriver;
 import com.google.common.io.Files;
 
 public class Helper {
-	
-	 public static void snapShot(WebDriver webdriver,String fileWithPath) throws Exception{
 
-	        //Convert web driver object to TakeScreenshot
+	public static void snapShot(WebDriver webdriver, String fileWithPath) throws Exception {
 
-	        TakesScreenshot scrShot =((TakesScreenshot)webdriver);
+		TakesScreenshot scrShot = ((TakesScreenshot) webdriver);
 
-	        //Call getScreenshotAs method to create image file
+		// Call method to create image file
 
-	                File SrcFile=scrShot.getScreenshotAs(OutputType.FILE);
+		File SrcFile = scrShot.getScreenshotAs(OutputType.FILE);
 
-	            //Move image file to new destination
+		// Move image file to new destination
 
-	                File DestFile=new File(fileWithPath);
+		File DestFile = new File(fileWithPath);
 
-	                //Copy file at destination
+		// Copy file at destination
 
-	                Files.copy(SrcFile, DestFile);
+		Files.copy(SrcFile, DestFile);
 
-	    }
+	}
 }
