@@ -1,19 +1,24 @@
 package search;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+
+import java.io.File;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -21,20 +26,18 @@ import com.relevantcodes.extentreports.ExtentReports;
 import com.relevantcodes.extentreports.ExtentTest;
 import com.relevantcodes.extentreports.LogStatus;
 
-
-
-
+import screenShot.Helper;
 
 public class GoogleKittens {
 
 	private static String URL = "https://www.google.com/";
-	private static WebDriver driver;
+	private static RemoteWebDriver driver;
 	private static ExtentReports extent;
 	private static ExtentTest test;
 
 	// Our initialise method
 	@BeforeClass
-	public static void setup() {
+	public static void init() {
 		extent = new ExtentReports("src/test/resources/reports/report1.html", true);
 		test = extent.startTest("ExtentDemo");
 		System.setProperty("webdriver.gecko.driver",
@@ -46,6 +49,18 @@ public class GoogleKittens {
 		fOptions.addPreference("network.cookie.cookieBehavior", 2);
 		fOptions.addPreference("profile.block_third_party_cookies", true);
 		driver.manage().window().setSize(new Dimension(1366, 768));
+
+	}
+
+	@Before
+	public void setup() {
+
+		driver.manage().timeouts().pageLoadTimeout(30, TimeUnit.SECONDS);
+		try {
+			driver.get(URL);
+		} catch (TimeoutException e) {
+			System.out.println("Page: " + URL + " did not load within 30 seconds!");
+		}
 
 	}
 
@@ -61,8 +76,7 @@ public class GoogleKittens {
 
 	// Checks Googles page title
 	@Test
-	public void googleTitleTest() throws InterruptedException {
-		driver.get(URL);
+	public void googleTitleTest() {
 		if (driver.getTitle().equals("Google")) {
 			test.log(LogStatus.PASS, "Success");
 		} else {
@@ -79,7 +93,7 @@ public class GoogleKittens {
 	// Searches for Kittens, gets the number of images available and navigates to
 	// index 0
 	@Test
-	public void searchTest() throws InterruptedException {
+	public void searchTest() throws Exception {
 		driver.get(URL + "/images");
 		// Locates the input box with name "q"
 		WebElement input = driver.findElement(By.name("q"));
@@ -104,9 +118,11 @@ public class GoogleKittens {
 
 		// Using the action, this will click on the first element in the list
 		action.moveToElement(listResult.get(0)).click().perform();
-
-		// Using getAttribute we are able to get the src containing a link, copy and
-		// paste the output into your browser
+		
+		// Captures a shot of the page at this point, you can see the highlighted img, etc
+		Helper.snapShot(driver, "src/test/resources/reports/shot.png");
+		
+		// Using getAttribute we are able to get the src containing a link, copy and paste the output into your browser
 		String kittenImgURL = listResult.get(3).getAttribute("src").toString();
 		System.out.println(kittenImgURL);
 
